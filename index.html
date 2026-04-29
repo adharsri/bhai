@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Darshan</title>
+<link href="https://fonts.googleapis.com/css2?family=Yatra+One&family=Philosopher:ital@0;1&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --saffron: #FF6B00;
+    --marigold: #FFA500;
+    --gold: #D4A017;
+    --gold-light: #FFD700;
+    --vermillion: #C0392B;
+    --deep-red: #7B1C1C;
+    --maroon: #4A0E0E;
+    --ivory: #FFF8E7;
+    --warm-white: #FFF3D0;
+    --dark-bg: #1A0A00;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    background: var(--dark-bg);
+    font-family: 'Philosopher', serif;
+  }
+
+  /* ─── SCENE WRAPPER ─── */
+  #scene {
+    position: fixed; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ─── BACKGROUND (pre-reveal, visible behind door) ─── */
+  #bg-glow {
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at center, #3D1A00 0%, #1A0A00 70%);
+    z-index: 0;
+  }
+
+  /* Floating diyas / ambient particles in background */
+  #ambient {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none; overflow: hidden;
+  }
+  .diya-particle {
+    position: absolute;
+    width: 3px; height: 3px;
+    border-radius: 50%;
+    background: var(--marigold);
+    opacity: 0;
+    animation: floatUp linear infinite;
+  }
+
+  @keyframes floatUp {
+    0%   { transform: translateY(0) scale(1);   opacity: 0; }
+    10%  { opacity: 0.7; }
+    90%  { opacity: 0.3; }
+    100% { transform: translateY(-100vh) scale(0); opacity: 0; }
+  }
+
+  /* ─── DOOR FRAME ─── */
+  #door-frame {
+    position: relative; z-index: 10;
+    width: min(88vw, 340px);
+    height: min(88vw * 1.65, 560px);
+    height: clamp(300px, 75vh, 560px);
+    filter: drop-shadow(0 0 30px rgba(212,160,23,0.5));
+  }
+
+  /* Arched frame shape — ornate */
+  #door-arch {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, var(--maroon) 0%, var(--deep-red) 65%, var(--maroon) 100%);
+    border-radius: 50% 50% 0 0 / 25% 25% 0 0;
+    border: 4px solid var(--gold);
+    box-shadow: 0 0 0 2px rgba(212,160,23,0.35), inset 0 0 0 2px rgba(212,160,23,0.18);
+    overflow: hidden;
+    z-index: 10;
+  }
+
+  /* Gold border ornament — outer ring */
+  #door-arch::before {
+    content: '';
+    position: absolute; inset: 8px;
+    border-radius: 48% 48% 0 0 / 23% 23% 0 0;
+    border: 2px solid rgba(212,160,23,0.55);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Gold border ornament — inner ring */
+  #door-arch::after {
+    content: '';
+    position: absolute; inset: 16px;
+    border-radius: 46% 46% 0 0 / 22% 22% 0 0;
+    border: 1px solid rgba(212,160,23,0.3);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* OM symbol on top arch — circular medallion */
+  #om-symbol {
+    position: absolute;
+    top: 7px; left: 50%; transform: translateX(-50%);
+    font-size: 2.1rem;
+    color: var(--gold-light);
+    text-shadow: 0 0 14px rgba(255,215,0,0.9), 0 0 30px rgba(255,165,0,0.4);
+    z-index: 20;
+    animation: omPulse 3s ease-in-out infinite;
+    pointer-events: none;
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(60,10,0,0.85) 45%, transparent 100%);
+    border: 1px solid rgba(212,160,23,0.55);
+  }
+  @keyframes omPulse {
+    0%, 100% { text-shadow: 0 0 12px rgba(255,215,0,0.8); opacity: 1; }
+    50%       { text-shadow: 0 0 25px rgba(255,215,0,1), 0 0 50px rgba(255,165,0,0.5); opacity: 0.85; }
+  }
+
+  /* ─── THE TWO DOOR PANELS ─── */
+  #doors-container {
+    position: absolute; inset: 0;
+    display: flex;
+    perspective: 900px;
+    border-radius: 50% 50% 0 0 / 25% 25% 0 0;
+    overflow: hidden;
+  }
+
+  .door-panel {
+    flex: 1; height: 100%;
+    position: relative;
+    background: linear-gradient(160deg, #6B1800 0%, #4A1000 35%, #360C00 65%, #220800 100%);
+    transition: transform 1.4s cubic-bezier(0.76, 0, 0.24, 1);
+    transform-style: preserve-3d;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .door-panel.left  { transform-origin: left center;  border-right: 2px solid var(--gold); }
+  .door-panel.right { transform-origin: right center; border-left:  2px solid var(--gold); }
+
+  /* Deep teak wood grain */
+  .door-panel::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      178deg,
+      transparent 0px, transparent 13px,
+      rgba(0,0,0,0.11) 13px, rgba(0,0,0,0.11) 14px,
+      transparent 14px, transparent 27px,
+      rgba(0,0,0,0.05) 27px, rgba(0,0,0,0.05) 28px
+    );
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* Outer ornate gold border */
+  .panel-border-outer {
+    position: absolute;
+    inset: 5px;
+    border: 2px solid var(--gold);
+    border-radius: 3px;
+    box-shadow: inset 0 0 10px rgba(212,160,23,0.12), 0 0 5px rgba(212,160,23,0.12);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* Inner filigree border */
+  .panel-border-inner {
+    position: absolute;
+    inset: 10px;
+    border: 1px solid rgba(212,160,23,0.4);
+    border-radius: 2px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  /* Top carved panel — lotus relief */
+  .door-top-section {
+    position: absolute;
+    top: 9%; left: 13%; right: 13%;
+    height: 26%;
+    border: 2px solid var(--gold);
+    border-radius: 4px 4px 2px 2px;
+    background: linear-gradient(180deg, rgba(212,160,23,0.1) 0%, rgba(0,0,0,0.28) 100%);
+    box-shadow:
+      inset 0 3px 8px rgba(0,0,0,0.55),
+      inset 0 -1px 2px rgba(212,160,23,0.08),
+      0 1px 0 rgba(255,215,0,0.2);
+    z-index: 3;
+    display: flex;
+    align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .door-top-section::before {
+    content: '';
+    position: absolute; inset: 4px;
+    border: 1px solid rgba(212,160,23,0.3);
+    border-radius: 2px;
+    pointer-events: none;
+  }
+
+  /* Central carved panel — deity motif */
+  .door-center-section {
+    position: absolute;
+    top: 41%; left: 13%; right: 13%;
+    height: 42%;
+    border: 2px solid var(--gold);
+    border-radius: 2px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.22) 0%, rgba(212,160,23,0.07) 50%, rgba(0,0,0,0.28) 100%);
+    box-shadow:
+      inset 0 3px 10px rgba(0,0,0,0.55),
+      inset 0 -2px 6px rgba(212,160,23,0.07),
+      0 1px 0 rgba(255,215,0,0.15);
+    z-index: 3;
+    display: flex;
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+  }
+  .door-center-section::before {
+    content: '';
+    position: absolute; inset: 4px;
+    border: 1px solid rgba(212,160,23,0.3);
+    border-radius: 1px;
+    pointer-events: none;
+  }
+
+  /* Carved medallion symbol */
+  .door-medallion {
+    font-size: 1.55rem;
+    color: var(--gold-light);
+    text-shadow: 0 0 10px rgba(255,215,0,0.5), 0 2px 4px rgba(0,0,0,0.9);
+    z-index: 4;
+    position: relative;
+    animation: medalPulse 4s ease-in-out infinite;
+  }
+  .door-panel.right .door-center-section .door-medallion { animation-delay: 2s; }
+  .door-panel.right .door-top-section    .door-medallion { animation-delay: 1s; }
+  @keyframes medalPulse {
+    0%, 100% { text-shadow: 0 0 8px rgba(255,215,0,0.4), 0 2px 4px rgba(0,0,0,0.9); opacity: 0.65; }
+    50%       { text-shadow: 0 0 20px rgba(255,215,0,0.9), 0 0 35px rgba(255,165,0,0.3), 0 2px 4px rgba(0,0,0,0.7); opacity: 1; }
+  }
+
+  /* Flower row beneath central symbol */
+  .door-flowers {
+    display: flex; gap: 4px;
+    z-index: 4;
+  }
+  .door-flowers span {
+    font-size: 0.6rem;
+    color: var(--saffron);
+    opacity: 0.8;
+    text-shadow: 0 0 6px rgba(255,107,0,0.5);
+  }
+
+  /* Brass corner studs */
+  .door-stud {
+    position: absolute;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(255,215,0,0.95), var(--gold), #8B6914);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.25);
+    z-index: 5;
+  }
+
+  /* Ornate ring-pull knob */
+  .door-knob {
+    position: absolute;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 28%, var(--gold-light), var(--gold) 55%, #6B4E10 100%);
+    box-shadow:
+      0 0 0 3px rgba(212,160,23,0.28),
+      0 0 12px rgba(212,160,23,0.55),
+      inset 0 1px 3px rgba(255,255,255,0.45),
+      inset 0 -1px 3px rgba(0,0,0,0.55);
+    top: 50%; transform: translateY(-50%);
+    z-index: 5;
+  }
+  .door-panel.left  .door-knob { right: 10px; }
+  .door-panel.right .door-knob { left: 10px; }
+
+  /* ─── DOOR OPEN STATES ─── */
+  #door-frame.open .door-panel.left  { transform: rotateY(105deg); }
+  #door-frame.open .door-panel.right { transform: rotateY(-105deg); }
+
+  /* ─── INNER SANCTUM (revealed behind doors) ─── */
+  #inner-sanctum {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: radial-gradient(ellipse at center, #2A1200 0%, #0D0500 100%);
+    z-index: 5;
+    overflow: hidden;
+  }
+
+  /* Image frame — marigold garland border effect */
+  #image-frame {
+    position: relative;
+    width: 75%;
+    aspect-ratio: 3/4;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 3px solid var(--gold);
+    box-shadow:
+      0 0 0 6px rgba(212,160,23,0.2),
+      0 0 0 9px rgba(212,160,23,0.1),
+      0 0 30px rgba(255,165,0,0.4),
+      0 0 60px rgba(212,160,23,0.2);
+    opacity: 0;
+    transform: scale(0.92);
+    transition: opacity 1.2s ease 0.3s, transform 1.2s ease 0.3s;
+  }
+  #door-frame.revealed #image-frame {
+    opacity: 1; transform: scale(1);
+  }
+
+  /* Garland dots around frame */
+  #image-frame::before {
+    content: '';
+    position: absolute; inset: -3px;
+    border-radius: 10px;
+    background: repeating-conic-gradient(
+      var(--marigold) 0deg 6deg,
+      var(--saffron) 6deg 12deg
+    );
+    z-index: -1;
+    opacity: 0.7;
+  }
+
+  /* Placeholder image slot */
+  #ganesh-image {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    background: linear-gradient(135deg, #1A0800 0%, #3D1A00 50%, #1A0800 100%);
+  }
+
+  /* Placeholder text when no image */
+  #image-placeholder {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    color: rgba(212,160,23,0.5);
+    font-family: 'Yatra One', cursive;
+    font-size: 0.85rem;
+    text-align: center;
+    gap: 8px;
+    pointer-events: none;
+  }
+  #image-placeholder .placeholder-icon { font-size: 2.5rem; opacity: 0.4; }
+
+  /* ─── SHIMMER OVERLAY ─── */
+  #shimmer-overlay {
+    position: absolute; inset: 0;
+    pointer-events: none;
+    z-index: 30;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 1s ease 1s;
+  }
+  #door-frame.revealed #shimmer-overlay { opacity: 1; }
+
+  /* Ray sweeps */
+  .shimmer-ray {
+    position: absolute;
+    top: -50%; left: -50%;
+    width: 30px; height: 200%;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(255,215,0,0.06) 20%,
+      rgba(255,215,0,0.18) 50%,
+      rgba(255,215,0,0.06) 80%,
+      transparent 100%
+    );
+    transform-origin: top center;
+    animation: raySweep linear infinite;
+    border-radius: 50%;
+  }
+  .shimmer-ray:nth-child(1) { left: 20%; animation-duration: 4.5s; animation-delay: 0s;    transform: rotate(-15deg); }
+  .shimmer-ray:nth-child(2) { left: 45%; animation-duration: 6s;   animation-delay: 1.5s;  transform: rotate(5deg); }
+  .shimmer-ray:nth-child(3) { left: 65%; animation-duration: 5.2s; animation-delay: 0.8s;  transform: rotate(20deg); }
+  .shimmer-ray:nth-child(4) { left: 35%; animation-duration: 7s;   animation-delay: 3s;    transform: rotate(-5deg); }
+
+  @keyframes raySweep {
+    0%   { opacity: 0; transform: rotate(var(--r, -15deg)) translateX(-60px); }
+    20%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { opacity: 0; transform: rotate(var(--r, -15deg)) translateX(60px); }
+  }
+
+  /* Sparkle particles over image */
+  .sparkle {
+    position: absolute;
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--gold-light);
+    pointer-events: none;
+    animation: sparkleTwinkle ease-in-out infinite;
+  }
+  @keyframes sparkleTwinkle {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    50%       { opacity: 1; transform: scale(1.3); }
+  }
+
+  /* ─── TAP HINT TEXT ─── */
+  #tap-hint {
+    position: absolute;
+    bottom: -38px; left: 50%; transform: translateX(-50%);
+    color: rgba(255,200,100,0.75);
+    font-family: 'Philosopher', serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    animation: hintPulse 2s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 20;
+  }
+  @keyframes hintPulse {
+    0%, 100% { opacity: 0.5; }
+    50%       { opacity: 1; }
+  }
+  #door-frame.open #tap-hint { display: none; }
+
+  /* ─── BLESSING TEXT ─── */
+  #blessing-text {
+    position: absolute;
+    bottom: -44px; left: 50%; transform: translateX(-50%);
+    color: var(--gold-light);
+    font-family: 'Yatra One', cursive;
+    font-size: 1rem;
+    white-space: nowrap;
+    text-shadow: 0 0 12px rgba(255,215,0,0.8);
+    opacity: 0;
+    transition: opacity 1.5s ease 1.8s;
+    pointer-events: none;
+    text-align: center;
+    width: 200px;
+  }
+  #door-frame.revealed #blessing-text { opacity: 1; }
+
+  /* ─── AUDIO MUTE BUTTON ─── */
+  #mute-btn {
+    position: fixed;
+    bottom: 24px; right: 20px;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: rgba(212,160,23,0.2);
+    border: 1px solid rgba(212,160,23,0.5);
+    color: var(--gold-light);
+    font-size: 1.1rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  #mute-btn.visible { opacity: 1; }
+
+  /* ─── LOADING OVERLAY ─── */
+  #loading {
+    position: fixed; inset: 0;
+    background: var(--dark-bg);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 999;
+    transition: opacity 0.8s ease;
+  }
+  #loading.hidden { opacity: 0; pointer-events: none; }
+  #loading-text {
+    color: var(--gold);
+    font-family: 'Yatra One', cursive;
+    font-size: 1.2rem;
+    animation: omPulse 1.5s ease-in-out infinite;
+  }
+</style>
+</head>
+<body>
+
+<!-- Loading screen -->
+<div id="loading"><div id="loading-text">ॐ</div></div>
+
+<div id="scene">
+  <div id="bg-glow"></div>
+  <div id="ambient" id="ambient-particles"></div>
+
+  <div id="door-frame">
+    <!-- Inner sanctum (behind doors) -->
+    <div id="inner-sanctum">
+      <div id="image-frame">
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- ADD YOUR GANESH JI IMAGE BELOW              -->
+        <!-- Replace the img src with your image path   -->
+        <!-- e.g. src="ganesh.jpg"                      -->
+        <!-- ═══════════════════════════════════════════ -->
+        <img id="ganesh-image" src="" alt="Ganesh Ji" onerror="this.style.display='none'" />
+        <div id="image-placeholder">
+          <div class="placeholder-icon">🪷</div>
+          <div>Your image of<br/>Ganesh Ji goes here</div>
+        </div>
+
+        <!-- Shimmer overlay ON the image -->
+        <div id="shimmer-overlay">
+          <div class="shimmer-ray"></div>
+          <div class="shimmer-ray"></div>
+          <div class="shimmer-ray"></div>
+          <div class="shimmer-ray"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Door arch -->
+    <div id="door-arch">
+      <div id="om-symbol">ॐ</div>
+      <!-- Two door panels -->
+      <div id="doors-container">
+        <div class="door-panel left" id="panel-left">
+          <div class="panel-border-outer"></div>
+          <div class="panel-border-inner"></div>
+          <div class="door-stud" style="top:14px;left:14px"></div>
+          <div class="door-stud" style="top:14px;right:14px"></div>
+          <div class="door-stud" style="bottom:14px;left:14px"></div>
+          <div class="door-stud" style="bottom:14px;right:14px"></div>
+          <div class="door-top-section">
+            <div class="door-medallion">🪷</div>
+          </div>
+          <div class="door-center-section">
+            <div class="door-medallion">ॐ</div>
+            <div class="door-flowers"><span>✿</span><span>✿</span><span>✿</span></div>
+          </div>
+          <div class="door-knob"></div>
+        </div>
+        <div class="door-panel right" id="panel-right">
+          <div class="panel-border-outer"></div>
+          <div class="panel-border-inner"></div>
+          <div class="door-stud" style="top:14px;left:14px"></div>
+          <div class="door-stud" style="top:14px;right:14px"></div>
+          <div class="door-stud" style="bottom:14px;left:14px"></div>
+          <div class="door-stud" style="bottom:14px;right:14px"></div>
+          <div class="door-top-section">
+            <div class="door-medallion">🪷</div>
+          </div>
+          <div class="door-center-section">
+            <div class="door-medallion">ॐ</div>
+            <div class="door-flowers"><span>✿</span><span>✿</span><span>✿</span></div>
+          </div>
+          <div class="door-knob"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tap-hint">✨ Tap to open ✨</div>
+    <div id="blessing-text">गणपति बप्पा मोरया 🙏</div>
+  </div>
+</div>
+
+<button id="mute-btn" title="Toggle sound">🔊</button>
+
+<script>
+// ═══════════════════════════════════════════════════
+// AUDIO FILE PATHS — ADD YOUR FILES HERE
+// ═══════════════════════════════════════════════════
+const AUDIO_FILES = {
+  conch:        'conch.mp3',         // Shankh blow sound
+  firecrackers: 'firecrackers.mp3',  // Firecracker burst
+  bells:        'pooja-bells.mp3',   // Pooja/temple bells
+  bgMusic:      'bg-music.mp3'       // Background bhajan/music (will loop)
+};
+// ═══════════════════════════════════════════════════
+
+let audioCtx = null;
+let bgMusicSource = null;
+let bgGainNode = null;
+let isMuted = false;
+let audioBuffers = {};
+let doorOpened = false;
+
+// ── Ambient particles ──
+function createAmbientParticles() {
+  const container = document.getElementById('ambient');
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    p.className = 'diya-particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.bottom = (Math.random() * 20) + '%';
+    const dur = 6 + Math.random() * 10;
+    const delay = Math.random() * 10;
+    p.style.animation = `floatUp ${dur}s ${delay}s linear infinite`;
+    const size = 2 + Math.random() * 4;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    container.appendChild(p);
+  }
+}
+
+// ── Sparkles on image ──
+function createSparkles() {
+  const overlay = document.getElementById('shimmer-overlay');
+  for (let i = 0; i < 14; i++) {
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    s.style.left = (5 + Math.random() * 90) + '%';
+    s.style.top  = (5 + Math.random() * 90) + '%';
+    const dur = 1.5 + Math.random() * 3;
+    const delay = Math.random() * 4;
+    s.style.animation = `sparkleTwinkle ${dur}s ${delay}s ease-in-out infinite`;
+    const size = 2 + Math.random() * 3;
+    s.style.width = size + 'px';
+    s.style.height = size + 'px';
+    overlay.appendChild(s);
+  }
+}
+
+// ── Web Audio setup ──
+function initAudio() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+}
+
+async function loadBuffer(key) {
+  if (audioBuffers[key]) return audioBuffers[key];
+  try {
+    const res = await fetch(AUDIO_FILES[key]);
+    if (!res.ok) throw new Error('File not found');
+    const arr = await res.arrayBuffer();
+    const buf = await audioCtx.decodeAudioData(arr);
+    audioBuffers[key] = buf;
+    return buf;
+  } catch(e) {
+    console.warn(`Audio file "${AUDIO_FILES[key]}" not found. Add the file to enable sound.`);
+    return null;
+  }
+}
+
+function playBuffer(buffer, {loop=false, fadeIn=0.5, fadeOut=0.5, duration=null, startDelay=0} = {}) {
+  if (!buffer || !audioCtx) return null;
+  const gainNode = audioCtx.createGain();
+  gainNode.connect(audioCtx.destination);
+  const source = audioCtx.createBufferSource();
+  source.buffer = buffer;
+  source.loop = loop;
+  source.connect(gainNode);
+
+  const now = audioCtx.currentTime + startDelay;
+  gainNode.gain.setValueAtTime(0, now);
+  gainNode.gain.linearRampToValueAtTime(isMuted ? 0 : 1, now + fadeIn);
+
+  const len = duration || buffer.duration;
+  if (!loop && fadeOut > 0) {
+    const fadeStart = now + len - fadeOut;
+    gainNode.gain.setValueAtTime(isMuted ? 0 : 1, fadeStart);
+    gainNode.gain.linearRampToValueAtTime(0, now + len);
+  }
+
+  source.start(now);
+  if (!loop && duration) source.stop(now + duration);
+
+  return { source, gainNode };
+}
+
+// ── Main door tap sequence ──
+async function openDoor() {
+  if (doorOpened) return;
+  doorOpened = true;
+
+  // Open the door immediately — never block the visual on audio state
+  const frame = document.getElementById('door-frame');
+  frame.classList.add('open');
+
+  try { initAudio(); } catch(e) { /* audio unavailable */ }
+  try { if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume(); } catch(e) {}
+
+  // Load all audio (non-blocking — gracefully skips missing files)
+  const [conchBuf, crackBuf, bellsBuf, bgBuf] = await Promise.all([
+    loadBuffer('conch'),
+    loadBuffer('firecrackers'),
+    loadBuffer('bells'),
+    loadBuffer('bgMusic')
+  ]);
+
+  // 1. Conch — plays immediately with fade in/out
+  playBuffer(conchBuf, { fadeIn: 0.6, fadeOut: 0.8 });
+
+  // 2. Firecrackers + bells together — start near conch's tail (~2.5s in)
+  const conchDur = conchBuf ? conchBuf.duration : 3;
+  const overlapAt = Math.max(conchDur - 1.2, 1.5);
+
+  playBuffer(crackBuf, { startDelay: overlapAt, fadeIn: 0.5, fadeOut: 0.6 });
+  playBuffer(bellsBuf, { startDelay: overlapAt, fadeIn: 0.4, fadeOut: 0.8 });
+
+  // 3. Reveal inner sanctum after door fully opens (~1.4s)
+  setTimeout(() => {
+    frame.classList.add('revealed');
+    document.getElementById('mute-btn').classList.add('visible');
+  }, 1500);
+
+  // 4. Background music — starts after door reveals, loops forever
+  const bgDelay = 2.5;
+  if (bgBuf) {
+    const bgResult = playBuffer(bgBuf, {
+      loop: true,
+      fadeIn: 2.0,
+      fadeOut: 0,
+      startDelay: bgDelay
+    });
+    if (bgResult) {
+      bgMusicSource = bgResult.source;
+      bgGainNode = bgResult.gainNode;
+    }
+  }
+}
+
+// ── Mute toggle ──
+document.getElementById('mute-btn').addEventListener('click', () => {
+  isMuted = !isMuted;
+  document.getElementById('mute-btn').textContent = isMuted ? '🔇' : '🔊';
+  if (bgGainNode && audioCtx) {
+    bgGainNode.gain.linearRampToValueAtTime(
+      isMuted ? 0 : 1,
+      audioCtx.currentTime + 0.5
+    );
+  }
+});
+
+// ── Door tap listeners ──
+const doorPanelLeft  = document.getElementById('panel-left');
+const doorPanelRight = document.getElementById('panel-right');
+const doorArch       = document.getElementById('door-arch');
+[doorPanelLeft, doorPanelRight, doorArch].forEach(el => {
+  el.addEventListener('click',      openDoor);
+  el.addEventListener('touchstart', openDoor, { passive: true });
+});
+
+// ── Fade out bg music on page leave ──
+window.addEventListener('beforeunload', () => {
+  if (bgGainNode && audioCtx) {
+    bgGainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5);
+  }
+});
+
+// ── Init ──
+createAmbientParticles();
+createSparkles();
+
+// Hide loading screen after fonts settle
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loading').classList.add('hidden');
+  }, 600);
+});
+</script>
+</body>
+</html>
