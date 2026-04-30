@@ -54,6 +54,19 @@
     animation: floatUp linear infinite;
   }
 
+  /* Night-sky stars inside #bg-glow */
+  .star {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 245, 210, 0.9);
+    pointer-events: none;
+    animation: starTwinkle ease-in-out infinite;
+  }
+  @keyframes starTwinkle {
+    0%, 100% { opacity: 0.1; }
+    50%       { opacity: 0.9; }
+  }
+
   @keyframes floatUp {
     0%   { transform: translateY(0) scale(1);   opacity: 0; }
     10%  { opacity: 0.7; }
@@ -632,6 +645,24 @@ function createSparkles() {
   }
 }
 
+// ── Night-sky stars ──
+function createStars() {
+  const bg = document.getElementById('bg-glow');
+  for (let i = 0; i < 35; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.top  = Math.random() * 65 + '%';
+    const size = 1 + Math.random() * 1.5;
+    star.style.width  = size + 'px';
+    star.style.height = size + 'px';
+    const dur   = 2 + Math.random() * 4;
+    const delay = Math.random() * 6;
+    star.style.animation = `starTwinkle ${dur}s ${delay}s ease-in-out infinite`;
+    bg.appendChild(star);
+  }
+}
+
 // ── Web Audio setup ──
 function initAudio() {
   if (audioCtx) return;
@@ -894,6 +925,7 @@ async function preloadAll() {
 // ── Init ──
 createAmbientParticles();
 createSparkles();
+createStars();
 
 // Preload all assets, then reveal the page
 window.addEventListener('load', () => {
