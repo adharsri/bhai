@@ -704,11 +704,11 @@ async function openDoor() {
     // 3. Background music
     const bgDelay = overlapAt + bellsDur;
     if (bg1Buf) {
-      const bgResult = playBuffer(bg1Buf, { loop: false, fadeIn: 0, fadeOut: 0.1, startDelay: bgDelay });
+      const bgResult = playBuffer(bg1Buf, { loop: false, fadeIn: 0, fadeOut: 0.3, startDelay: bgDelay });
       if (bgResult) { bgGainNode = bgResult.gainNode; bgMusicSource = bgResult.source; }
       const bg2StartDelay = bgDelay + bg1Buf.duration;
       if (bg2Buf) {
-        const bg2Result = playBuffer(bg2Buf, { loop: false, fadeIn: 0.5, fadeOut: 1.0, startDelay: bg2StartDelay });
+        const bg2Result = playBuffer(bg2Buf, { loop: false, fadeIn: 0.5, fadeOut: 1.0, startDelay: bg2StartDelay-0.2 });
         if (bg2Result) { bgMusicSource = bg2Result.source; bgGainNode = bg2Result.gainNode; }
       }
     }
