@@ -1,0 +1,207 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 560" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="woodR" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#7B1C0A"/>
+      <stop offset="40%"  stop-color="#5C1200"/>
+      <stop offset="100%" stop-color="#3A0A00"/>
+    </linearGradient>
+    <linearGradient id="goldShineR" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#FFE066"/>
+      <stop offset="40%"  stop-color="#D4A017"/>
+      <stop offset="100%" stop-color="#8B6914"/>
+    </linearGradient>
+    <linearGradient id="panelBgR" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#6B1500"/>
+      <stop offset="100%" stop-color="#3D0800"/>
+    </linearGradient>
+    <pattern id="woodGrainR" x="0" y="0" width="4" height="80" patternUnits="userSpaceOnUse">
+      <rect width="4" height="80" fill="none"/>
+      <line x1="4" y1="0" x2="0" y2="80" stroke="rgba(0,0,0,0.07)" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <!-- Door base -->
+  <rect x="0" y="0" width="200" height="560" fill="url(#woodR)"/>
+  <rect x="0" y="0" width="200" height="560" fill="url(#woodGrainR)"/>
+
+  <!-- Outer gold border -->
+  <rect x="4" y="4" width="192" height="552" fill="none" stroke="url(#goldShineR)" stroke-width="3" rx="2"/>
+  <!-- Inner gold border -->
+  <rect x="10" y="10" width="180" height="540" fill="none" stroke="#D4A017" stroke-width="1" stroke-opacity="0.5" rx="1"/>
+
+  <!-- ═══ TOP ARCH PANEL ═══ -->
+  <rect x="18" y="18" width="164" height="120" fill="url(#panelBgR)" rx="4" stroke="#D4A017" stroke-width="1.5"/>
+  <rect x="22" y="22" width="156" height="112" fill="none" stroke="#D4A017" stroke-width="0.6" stroke-opacity="0.4" rx="2"/>
+
+  <!-- Lotus flower top panel (same as left, symmetric) -->
+  <ellipse cx="100" cy="68" rx="8" ry="18" fill="#D4A017" opacity="0.85" transform="rotate(0,100,78)"/>
+  <ellipse cx="100" cy="68" rx="8" ry="18" fill="#D4A017" opacity="0.75" transform="rotate(45,100,78)"/>
+  <ellipse cx="100" cy="68" rx="8" ry="18" fill="#D4A017" opacity="0.75" transform="rotate(90,100,78)"/>
+  <ellipse cx="100" cy="68" rx="8" ry="18" fill="#D4A017" opacity="0.75" transform="rotate(135,100,78)"/>
+  <ellipse cx="100" cy="68" rx="8" ry="18" fill="#D4A017" opacity="0.6" transform="rotate(22.5,100,78)"/>
+  <ellipse cx="100" cy="68" rx="8" ry="18" fill="#D4A017" opacity="0.6" transform="rotate(67.5,100,78)"/>
+  <ellipse cx="100" cy="68" rx="8" ry="18" fill="#D4A017" opacity="0.6" transform="rotate(112.5,100,78)"/>
+  <ellipse cx="100" cy="68" rx="8" ry="18" fill="#D4A017" opacity="0.6" transform="rotate(157.5,100,78)"/>
+  <circle cx="100" cy="78" r="10" fill="#FFD700" opacity="0.9"/>
+  <circle cx="100" cy="78" r="6"  fill="#D4A017"/>
+  <circle cx="100" cy="78" r="3"  fill="#FFE066"/>
+
+  <!-- Corner swirls top panel -->
+  <path d="M26 26 Q34 26 34 34 Q34 42 26 42" fill="none" stroke="#D4A017" stroke-width="1.2" stroke-opacity="0.7"/>
+  <circle cx="26" cy="26" r="2" fill="#D4A017" opacity="0.7"/>
+  <path d="M174 26 Q166 26 166 34 Q166 42 174 42" fill="none" stroke="#D4A017" stroke-width="1.2" stroke-opacity="0.7"/>
+  <circle cx="174" cy="26" r="2" fill="#D4A017" opacity="0.7"/>
+  <path d="M26 130 Q34 130 34 122 Q34 114 26 114" fill="none" stroke="#D4A017" stroke-width="1.2" stroke-opacity="0.7"/>
+  <circle cx="26" cy="130" r="2" fill="#D4A017" opacity="0.7"/>
+  <path d="M174 130 Q166 130 166 122 Q166 114 174 114" fill="none" stroke="#D4A017" stroke-width="1.2" stroke-opacity="0.7"/>
+  <circle cx="174" cy="130" r="2" fill="#D4A017" opacity="0.7"/>
+
+  <!-- ═══ JALI LATTICE MIDDLE BAND ═══ -->
+  <rect x="18" y="148" width="164" height="36" fill="#3A0800" rx="2" stroke="#D4A017" stroke-width="1.2"/>
+  <g stroke="#D4A017" stroke-width="0.8" fill="none" opacity="0.8">
+    <polygon points="36,158 44,166 36,174 28,166" />
+    <polygon points="52,158 60,166 52,174 44,166" />
+    <polygon points="68,158 76,166 68,174 60,166" />
+    <polygon points="84,158 92,166 84,174 76,166" />
+    <polygon points="100,158 108,166 100,174 92,166" />
+    <polygon points="116,158 124,166 116,174 108,166" />
+    <polygon points="132,158 140,166 132,174 124,166" />
+    <polygon points="148,158 156,166 148,174 140,166" />
+    <polygon points="164,158 172,166 164,174 156,166" />
+    <circle cx="36" cy="166" r="1.5" fill="#D4A017"/>
+    <circle cx="52" cy="166" r="1.5" fill="#D4A017"/>
+    <circle cx="68" cy="166" r="1.5" fill="#D4A017"/>
+    <circle cx="84" cy="166" r="1.5" fill="#D4A017"/>
+    <circle cx="100" cy="166" r="1.5" fill="#D4A017"/>
+    <circle cx="116" cy="166" r="1.5" fill="#D4A017"/>
+    <circle cx="132" cy="166" r="1.5" fill="#D4A017"/>
+    <circle cx="148" cy="166" r="1.5" fill="#D4A017"/>
+    <circle cx="164" cy="166" r="1.5" fill="#D4A017"/>
+  </g>
+
+  <!-- ═══ MAIN CENTRE PANEL — ELEPHANT (Ganesha motif) ═══ -->
+  <rect x="18" y="194" width="164" height="200" fill="url(#panelBgR)" rx="4" stroke="#D4A017" stroke-width="1.5"/>
+  <rect x="24" y="200" width="152" height="188" fill="none" stroke="#D4A017" stroke-width="0.6" stroke-opacity="0.4" rx="2"/>
+
+  <!-- Elephant body -->
+  <ellipse cx="100" cy="318" rx="44" ry="36" fill="#8B7355" opacity="0.9"/>
+  <!-- Elephant head -->
+  <ellipse cx="100" cy="272" rx="36" ry="32" fill="#9B8060"/>
+  <!-- Elephant ears -->
+  <ellipse cx="64"  cy="274" rx="18" ry="24" fill="#8B7050" opacity="0.9"/>
+  <ellipse cx="136" cy="274" rx="18" ry="24" fill="#8B7050" opacity="0.9"/>
+  <!-- Ear inner -->
+  <ellipse cx="64"  cy="274" rx="11" ry="16" fill="#C4956A" opacity="0.5"/>
+  <ellipse cx="136" cy="274" rx="11" ry="16" fill="#C4956A" opacity="0.5"/>
+
+  <!-- Trunk — curved gracefully to the right (auspicious) -->
+  <path d="M100 292 Q88 310 82 330 Q78 346 88 350 Q96 354 100 344 Q104 334 100 322" fill="none" stroke="#8B7355" stroke-width="10" stroke-linecap="round"/>
+  <!-- Trunk highlight -->
+  <path d="M98 295 Q87 312 82 330 Q79 344 87 349" fill="none" stroke="#A89070" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+
+  <!-- Tusk (right) -->
+  <path d="M112 290 Q130 288 138 280 Q144 272 140 266" fill="none" stroke="#FFF8DC" stroke-width="4" stroke-linecap="round"/>
+  <!-- Tusk (left) -->
+  <path d="M88 290 Q70 288 62 280 Q56 272 60 266" fill="none" stroke="#FFF8DC" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Eyes -->
+  <ellipse cx="87" cy="264" rx="6" ry="5" fill="#2C1A00"/>
+  <ellipse cx="113" cy="264" rx="6" ry="5" fill="#2C1A00"/>
+  <circle cx="86" cy="263" r="2" fill="white" opacity="0.7"/>
+  <circle cx="112" cy="263" r="2" fill="white" opacity="0.7"/>
+
+  <!-- Forehead bindi / tilak -->
+  <ellipse cx="100" cy="252" rx="7" ry="5" fill="#D4A017" opacity="0.9"/>
+  <circle  cx="100" cy="252" r="2.5" fill="#FF4400" opacity="0.8"/>
+
+  <!-- Crown / mukut on elephant -->
+  <path d="M72 250 Q100 236 128 250" fill="#D4A017" opacity="0.85"/>
+  <!-- Crown jewels -->
+  <circle cx="100" cy="238" r="4"  fill="#FF4400" opacity="0.9"/>
+  <circle cx="86"  cy="242" r="3"  fill="#D4A017"/>
+  <circle cx="114" cy="242" r="3"  fill="#D4A017"/>
+  <!-- Crown top spires -->
+  <line x1="100" y1="234" x2="100" y2="224" stroke="#D4A017" stroke-width="2"/>
+  <line x1="88"  y1="238" x2="84"  y2="228" stroke="#D4A017" stroke-width="1.5"/>
+  <line x1="112" y1="238" x2="116" y2="228" stroke="#D4A017" stroke-width="1.5"/>
+  <circle cx="100" cy="223" r="3" fill="#FFD700"/>
+  <circle cx="84"  cy="227" r="2.5" fill="#FFD700"/>
+  <circle cx="116" cy="227" r="2.5" fill="#FFD700"/>
+
+  <!-- Decorative necklace -->
+  <path d="M70 290 Q100 304 130 290" fill="none" stroke="#D4A017" stroke-width="1.5"/>
+  <circle cx="100" cy="304" r="3" fill="#FF4400" opacity="0.8"/>
+  <circle cx="84"  cy="298" r="2" fill="#D4A017"/>
+  <circle cx="116" cy="298" r="2" fill="#D4A017"/>
+
+  <!-- Elephant legs -->
+  <rect x="72" y="346" width="18" height="30" rx="5" fill="#8B7355"/>
+  <rect x="110" y="346" width="18" height="30" rx="5" fill="#8B7355"/>
+  <!-- Toe lines -->
+  <line x1="74" y1="372" x2="88" y2="372" stroke="#6B5540" stroke-width="0.8" stroke-opacity="0.6"/>
+  <line x1="112" y1="372" x2="126" y2="372" stroke="#6B5540" stroke-width="0.8" stroke-opacity="0.6"/>
+
+  <!-- Small lotus under elephant feet -->
+  <ellipse cx="81"  cy="378" rx="12" ry="4" fill="#D4A017" opacity="0.3"/>
+  <ellipse cx="119" cy="378" rx="12" ry="4" fill="#D4A017" opacity="0.3"/>
+
+  <!-- Centre panel corner ornaments -->
+  <path d="M26 202 L38 202 L38 214" fill="none" stroke="#D4A017" stroke-width="1" stroke-opacity="0.6"/>
+  <path d="M162 202 L174 202 L174 214" fill="none" stroke="#D4A017" stroke-width="1" stroke-opacity="0.6"/>
+  <path d="M26 384 L38 384 L38 372" fill="none" stroke="#D4A017" stroke-width="1" stroke-opacity="0.6"/>
+  <path d="M162 384 L174 384 L174 372" fill="none" stroke="#D4A017" stroke-width="1" stroke-opacity="0.6"/>
+
+  <!-- ═══ LOWER JALI BAND ═══ -->
+  <rect x="18" y="404" width="164" height="36" fill="#3A0800" rx="2" stroke="#D4A017" stroke-width="1.2"/>
+  <g stroke="#D4A017" stroke-width="0.8" fill="none" opacity="0.8">
+    <polygon points="36,414 44,422 36,430 28,422" />
+    <polygon points="52,414 60,422 52,430 44,422" />
+    <polygon points="68,414 76,422 68,430 60,422" />
+    <polygon points="84,414 92,422 84,430 76,422" />
+    <polygon points="100,414 108,422 100,430 92,422" />
+    <polygon points="116,414 124,422 116,430 108,422" />
+    <polygon points="132,414 140,422 132,430 124,422" />
+    <polygon points="148,414 156,422 148,430 140,422" />
+    <polygon points="164,414 172,422 164,430 156,422" />
+    <circle cx="36" cy="422" r="1.5" fill="#D4A017"/>
+    <circle cx="52" cy="422" r="1.5" fill="#D4A017"/>
+    <circle cx="68" cy="422" r="1.5" fill="#D4A017"/>
+    <circle cx="84" cy="422" r="1.5" fill="#D4A017"/>
+    <circle cx="100" cy="422" r="1.5" fill="#D4A017"/>
+    <circle cx="116" cy="422" r="1.5" fill="#D4A017"/>
+    <circle cx="132" cy="422" r="1.5" fill="#D4A017"/>
+    <circle cx="148" cy="422" r="1.5" fill="#D4A017"/>
+    <circle cx="164" cy="422" r="1.5" fill="#D4A017"/>
+  </g>
+
+  <!-- ═══ BOTTOM PANEL ═══ -->
+  <rect x="18" y="450" width="164" height="94" fill="url(#panelBgR)" rx="4" stroke="#D4A017" stroke-width="1.5"/>
+  <rect x="24" y="456" width="152" height="82" fill="none" stroke="#D4A017" stroke-width="0.6" stroke-opacity="0.4" rx="2"/>
+
+  <!-- Kalash (sacred pot) — same as left for symmetry -->
+  <path d="M80 518 L76 490 Q76 484 100 484 Q124 484 124 490 L120 518 Z" fill="#8B6914" stroke="#D4A017" stroke-width="1"/>
+  <path d="M76 490 Q100 486 124 490" fill="none" stroke="#FFD700" stroke-width="1"/>
+  <rect x="90" y="476" width="20" height="10" rx="3" fill="#D4A017"/>
+  <ellipse cx="100" cy="474" rx="10" ry="5" fill="#1A7A50"/>
+  <circle cx="100" cy="468" r="6" fill="#8B4513"/>
+  <line x1="82" y1="500" x2="118" y2="500" stroke="#FFD700" stroke-width="0.8" stroke-opacity="0.6"/>
+  <line x1="80" y1="508" x2="120" y2="508" stroke="#FFD700" stroke-width="0.8" stroke-opacity="0.6"/>
+  <circle cx="66" cy="500" r="4" fill="none" stroke="#D4A017" stroke-width="0.8"/>
+  <circle cx="66" cy="500" r="1.5" fill="#D4A017"/>
+  <circle cx="134" cy="500" r="4" fill="none" stroke="#D4A017" stroke-width="0.8"/>
+  <circle cx="134" cy="500" r="1.5" fill="#D4A017"/>
+
+  <!-- Bottom corner ornaments -->
+  <path d="M26 458 L38 458 L38 470" fill="none" stroke="#D4A017" stroke-width="1" stroke-opacity="0.6"/>
+  <path d="M162 458 L174 458 L174 470" fill="none" stroke="#D4A017" stroke-width="1" stroke-opacity="0.6"/>
+  <path d="M26 536 L38 536 L38 524" fill="none" stroke="#D4A017" stroke-width="1" stroke-opacity="0.6"/>
+  <path d="M162 536 L174 536 L174 524" fill="none" stroke="#D4A017" stroke-width="1" stroke-opacity="0.6"/>
+
+  <!-- Door knob (on left edge — this is the right panel) -->
+  <circle cx="14" cy="280" r="10" fill="url(#goldShineR)" stroke="#8B6914" stroke-width="1"/>
+  <circle cx="14" cy="280" r="6"  fill="#D4A017"/>
+  <circle cx="11" cy="277" r="2"  fill="rgba(255,255,255,0.35)"/>
+
+  <!-- Left edge shadow line -->
+  <line x1="1" y1="0" x2="1" y2="560" stroke="rgba(0,0,0,0.4)" stroke-width="2"/>
+</svg>

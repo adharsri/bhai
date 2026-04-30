@@ -73,7 +73,6 @@
   /* Arched frame shape — ornate */
   #door-arch {
     position: absolute; inset: 0;
-    background: linear-gradient(180deg, var(--maroon) 0%, var(--deep-red) 65%, var(--maroon) 100%);
     border-radius: 50% 50% 0 0 / 25% 25% 0 0;
     border: 4px solid var(--gold);
     box-shadow: 0 0 0 2px rgba(212,160,23,0.35), inset 0 0 0 2px rgba(212,160,23,0.18);
@@ -129,13 +128,14 @@
     perspective: 900px;
     border-radius: 50% 50% 0 0 / 25% 25% 0 0;
     overflow: hidden;
+    z-index: 2;
   }
 
   .door-panel {
     flex: 1; height: 100%;
     position: relative;
-    background: linear-gradient(160deg, #6B1800 0%, #4A1000 35%, #360C00 65%, #220800 100%);
-    transition: transform 1.4s cubic-bezier(0.76, 0, 0.24, 1);
+    background: linear-gradient(180deg, var(--maroon) 0%, var(--deep-red) 65%, var(--maroon) 100%);
+    transition: transform 5s cubic-bezier(0.76, 0, 0.24, 1);
     transform-style: preserve-3d;
     cursor: pointer;
     overflow: hidden;
@@ -143,18 +143,13 @@
   .door-panel.left  { transform-origin: left center;  border-right: 2px solid var(--gold); }
   .door-panel.right { transform-origin: right center; border-left:  2px solid var(--gold); }
 
-  /* Deep teak wood grain */
-  .door-panel::before {
-    content: '';
+  /* SVG door image fills the panel */
+  .door-panel img.door-svg {
     position: absolute; inset: 0;
-    background: repeating-linear-gradient(
-      178deg,
-      transparent 0px, transparent 13px,
-      rgba(0,0,0,0.11) 13px, rgba(0,0,0,0.11) 14px,
-      transparent 14px, transparent 27px,
-      rgba(0,0,0,0.05) 27px, rgba(0,0,0,0.05) 28px
-    );
-    z-index: 1;
+    width: 100%; height: 100%;
+    display: block;
+    object-fit: fill;
+    z-index: 0;
     pointer-events: none;
   }
 
@@ -296,16 +291,16 @@
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     background: radial-gradient(ellipse at center, #2A1200 0%, #0D0500 100%);
-    z-index: 5;
+    z-index: 1;
     overflow: hidden;
+    pointer-events: none;
   }
 
   /* Image frame — marigold garland border effect */
   #image-frame {
-    position: relative;
-    width: 75%;
-    aspect-ratio: 3/4;
-    border-radius: 8px;
+    position: absolute;
+    inset: 0;
+    border-radius: 0;
     overflow: hidden;
     border: 3px solid var(--gold);
     box-shadow:
@@ -491,66 +486,43 @@
   <div id="ambient" id="ambient-particles"></div>
 
   <div id="door-frame">
-    <!-- Inner sanctum (behind doors) -->
-    <div id="inner-sanctum">
-      <div id="image-frame">
-        <!-- ═══════════════════════════════════════════ -->
-        <!-- ADD YOUR GANESH JI IMAGE BELOW              -->
-        <!-- Replace the img src with your image path   -->
-        <!-- e.g. src="ganesh.jpg"                      -->
-        <!-- ═══════════════════════════════════════════ -->
-        <img id="ganesh-image" src="" alt="Ganesh Ji" onerror="this.style.display='none'" />
-        <div id="image-placeholder">
-          <div class="placeholder-icon">🪷</div>
-          <div>Your image of<br/>Ganesh Ji goes here</div>
-        </div>
-
-        <!-- Shimmer overlay ON the image -->
-        <div id="shimmer-overlay">
-          <div class="shimmer-ray"></div>
-          <div class="shimmer-ray"></div>
-          <div class="shimmer-ray"></div>
-          <div class="shimmer-ray"></div>
-        </div>
-      </div>
-    </div>
-
     <!-- Door arch -->
     <div id="door-arch">
       <div id="om-symbol">ॐ</div>
+
+      <!-- Inner sanctum (revealed behind doors) -->
+      <div id="inner-sanctum">
+        <div id="image-frame">
+          <!-- ═══════════════════════════════════════════ -->
+          <!-- ADD YOUR GANESH JI IMAGE BELOW              -->
+          <!-- Replace the img src with your image path   -->
+          <!-- e.g. src="ganesh.jpg"                      -->
+          <!-- ═══════════════════════════════════════════ -->
+          <img id="ganesh-image" src="assets/ganeshji.png" alt="Ganesh Ji"
+               onload="document.getElementById('image-placeholder').style.display='none'"
+               onerror="this.style.display='none'" />
+          <div id="image-placeholder">
+            <div class="placeholder-icon">🪷</div>
+            <div>Your image of<br/>Ganesh Ji goes here</div>
+          </div>
+
+          <!-- Shimmer overlay ON the image -->
+          <div id="shimmer-overlay">
+            <div class="shimmer-ray"></div>
+            <div class="shimmer-ray"></div>
+            <div class="shimmer-ray"></div>
+            <div class="shimmer-ray"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Two door panels -->
       <div id="doors-container">
         <div class="door-panel left" id="panel-left">
-          <div class="panel-border-outer"></div>
-          <div class="panel-border-inner"></div>
-          <div class="door-stud" style="top:14px;left:14px"></div>
-          <div class="door-stud" style="top:14px;right:14px"></div>
-          <div class="door-stud" style="bottom:14px;left:14px"></div>
-          <div class="door-stud" style="bottom:14px;right:14px"></div>
-          <div class="door-top-section">
-            <div class="door-medallion">🪷</div>
-          </div>
-          <div class="door-center-section">
-            <div class="door-medallion">ॐ</div>
-            <div class="door-flowers"><span>✿</span><span>✿</span><span>✿</span></div>
-          </div>
-          <div class="door-knob"></div>
+          <img class="door-svg" src="assets/door_left.svg" alt="Left door panel" />
         </div>
         <div class="door-panel right" id="panel-right">
-          <div class="panel-border-outer"></div>
-          <div class="panel-border-inner"></div>
-          <div class="door-stud" style="top:14px;left:14px"></div>
-          <div class="door-stud" style="top:14px;right:14px"></div>
-          <div class="door-stud" style="bottom:14px;left:14px"></div>
-          <div class="door-stud" style="bottom:14px;right:14px"></div>
-          <div class="door-top-section">
-            <div class="door-medallion">🪷</div>
-          </div>
-          <div class="door-center-section">
-            <div class="door-medallion">ॐ</div>
-            <div class="door-flowers"><span>✿</span><span>✿</span><span>✿</span></div>
-          </div>
-          <div class="door-knob"></div>
+          <img class="door-svg" src="assets/door_right.svg" alt="Right door panel" />
         </div>
       </div>
     </div>
@@ -567,10 +539,11 @@
 // AUDIO FILE PATHS — ADD YOUR FILES HERE
 // ═══════════════════════════════════════════════════
 const AUDIO_FILES = {
-  conch:        'conch.mp3',         // Shankh blow sound
-  firecrackers: 'firecrackers.mp3',  // Firecracker burst
-  bells:        'pooja-bells.mp3',   // Pooja/temple bells
-  bgMusic:      'bg-music.mp3'       // Background bhajan/music (will loop)
+  conch:        'assets/shankh.mp3',        // Shankh blow sound
+  firecrackers: 'assets/firecrackers.wav',  // Firecracker burst
+  bells:        'assets/bell.wav',          // Pooja/temple bells
+  bgMusic1:     'assets/bg_1.mp3',          // Background music part 1
+  bgMusic2:     'assets/bg_2.mp3'           // Background music part 2 (plays after part 1, loops)
 };
 // ═══════════════════════════════════════════════════
 
@@ -624,6 +597,7 @@ function initAudio() {
 }
 
 async function loadBuffer(key) {
+  if (!AUDIO_FILES[key]) return null;
   if (audioBuffers[key]) return audioBuffers[key];
   try {
     const res = await fetch(AUDIO_FILES[key]);
@@ -677,41 +651,57 @@ async function openDoor() {
   try { if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume(); } catch(e) {}
 
   // Load all audio (non-blocking — gracefully skips missing files)
-  const [conchBuf, crackBuf, bellsBuf, bgBuf] = await Promise.all([
+  const [conchBuf, crackBuf, bellsBuf, bg1Buf, bg2Buf] = await Promise.all([
     loadBuffer('conch'),
     loadBuffer('firecrackers'),
     loadBuffer('bells'),
-    loadBuffer('bgMusic')
+    loadBuffer('bgMusic1'),
+    loadBuffer('bgMusic2')
   ]);
 
-  // 1. Conch — plays immediately with fade in/out
-  playBuffer(conchBuf, { fadeIn: 0.6, fadeOut: 0.8 });
+  // 1. Conch — plays immediately with fade in/out (hardcoded to 5s)
+  const conchDur = 5.5;
+  playBuffer(conchBuf, { fadeIn: 0.6, fadeOut: 0.8, duration: conchDur });
 
-  // 2. Firecrackers + bells together — start near conch's tail (~2.5s in)
-  const conchDur = conchBuf ? conchBuf.duration : 3;
-  const overlapAt = Math.max(conchDur - 1.2, 1.5);
+  // 2. Firecrackers + bells together — start near conch's tail
+  const overlapAt = conchDur - 1.2;
+  const bellsDur = bellsBuf ? bellsBuf.duration : 4;
 
   playBuffer(crackBuf, { startDelay: overlapAt, fadeIn: 0.5, fadeOut: 0.6 });
   playBuffer(bellsBuf, { startDelay: overlapAt, fadeIn: 0.4, fadeOut: 0.8 });
 
-  // 3. Reveal inner sanctum after door fully opens (~1.4s)
+  // 3. Reveal inner sanctum after door fully opens (~5s)
   setTimeout(() => {
     frame.classList.add('revealed');
     document.getElementById('mute-btn').classList.add('visible');
-  }, 1500);
+  }, 5200);
 
-  // 4. Background music — starts after door reveals, loops forever
-  const bgDelay = 2.5;
-  if (bgBuf) {
-    const bgResult = playBuffer(bgBuf, {
-      loop: true,
+  // 4. Background music — starts after bells finish, bg_2 loops after bg_1 ends
+  const bgDelay = overlapAt + bellsDur;
+  if (bg1Buf) {
+    const bgResult = playBuffer(bg1Buf, {
+      loop: false,
       fadeIn: 2.0,
       fadeOut: 0,
       startDelay: bgDelay
     });
     if (bgResult) {
-      bgMusicSource = bgResult.source;
       bgGainNode = bgResult.gainNode;
+      bgMusicSource = bgResult.source;
+    }
+    // bg_2 starts immediately after bg_1 ends, then loops
+    const bg2StartDelay = bgDelay + bg1Buf.duration;
+    if (bg2Buf) {
+      const bg2Result = playBuffer(bg2Buf, {
+        loop: true,
+        fadeIn: 0.5,
+        fadeOut: 0,
+        startDelay: bg2StartDelay
+      });
+      if (bg2Result) {
+        bgMusicSource = bg2Result.source;
+        bgGainNode = bg2Result.gainNode;
+      }
     }
   }
 }
