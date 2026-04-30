@@ -314,6 +314,18 @@
     object-fit: cover;
     display: block;
     background: linear-gradient(135deg, #1A0800 0%, #3D1A00 50%, #1A0800 100%);
+    transform-origin: center center;
+    will-change: transform;
+  }
+  #door-frame.revealed #ganesh-image {
+    animation: kenBurns 30s ease-in-out infinite;
+  }
+  @keyframes kenBurns {
+    0%         { transform: scale(1.0) translate(0%, 0%); }
+    25%        { transform: scale(1.05) translate(-0.8%, -0.6%); }
+    50%        { transform: scale(1.06) translate(0.5%, 0.4%); }
+    75%        { transform: scale(1.03) translate(-0.4%, 0.7%); }
+    100%       { transform: scale(1.0) translate(0%, 0%); }
   }
 
   /* Placeholder text when no image */
