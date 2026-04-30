@@ -681,7 +681,7 @@ async function openDoor() {
   if (bg1Buf) {
     const bgResult = playBuffer(bg1Buf, {
       loop: false,
-      fadeIn: 2.0,
+      fadeIn: 0,
       fadeOut: 0,
       startDelay: bgDelay
     });
@@ -695,7 +695,7 @@ async function openDoor() {
       const bg2Result = playBuffer(bg2Buf, {
         loop: false,
         fadeIn: 0.5,
-        fadeOut: 0,
+        fadeOut: 1.0,
         startDelay: bg2StartDelay
       });
       if (bg2Result) {
