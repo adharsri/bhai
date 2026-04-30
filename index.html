@@ -547,6 +547,7 @@ const AUDIO_FILES = {
 // ═══════════════════════════════════════════════════
 
 let audioCtx = null;
+let masterGainNode = null;
 let bgMusicSource = null;
 let bgGainNode = null;
 let isMuted = false;
@@ -594,16 +595,38 @@ function createSparkles() {
 function initAudio() {
   if (audioCtx) return;
   audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGainNode = audioCtx.createGain();
+  masterGainNode.gain.value = 1;
+  masterGainNode.connect(audioCtx.destination);
+}
+
+// Callback-based wrapper for Safari compatibility (older iOS ignores the Promise return)
+function decodeAudio(ctx, arrayBuffer) {
+  return new Promise((resolve, reject) => {
+    ctx.decodeAudioData(arrayBuffer, resolve, reject);
+  });
 }
 
 async function loadBuffer(key) {
   if (!AUDIO_FILES[key]) return null;
   if (audioBuffers[key]) return audioBuffers[key];
   try {
-    // Use pre-fetched data if available (avoids re-download on mobile)
     const raw = rawAudioData[key];
-    const arr = raw ? raw.slice(0) : await fetch(AUDIO_FILES[key]).then(r => r.arrayBuffer());
-    const buf = await audioCtx.decodeAudioData(arr);
+    let arr;
+    if (raw) {
+      arr = raw.slice(0);
+    } else {
+      // Timeout prevents fetch from hanging indefinitely on mobile Chrome/Safari
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
+      try {
+        const res = await fetch(AUDIO_FILES[key], { signal: controller.signal });
+        arr = await res.arrayBuffer();
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+    const buf = await decodeAudio(audioCtx, arr);
     audioBuffers[key] = buf;
     return buf;
   } catch(e) {
@@ -615,7 +638,7 @@ async function loadBuffer(key) {
 function playBuffer(buffer, {loop=false, fadeIn=0.5, fadeOut=0.5, duration=null, startDelay=0} = {}) {
   if (!buffer || !audioCtx) return null;
   const gainNode = audioCtx.createGain();
-  gainNode.connect(audioCtx.destination);
+  gainNode.connect(masterGainNode);
   const source = audioCtx.createBufferSource();
   source.buffer = buffer;
   source.loop = loop;
@@ -647,16 +670,24 @@ async function openDoor() {
   const frame = document.getElementById('door-frame');
   frame.classList.add('open');
 
+  // Schedule reveal NOW — before any async audio work — so the image always
+  // appears on mobile even if audio fetch stalls or is blocked by the browser
+  setTimeout(() => {
+    frame.classList.add('revealed');
+    document.getElementById('mute-btn').classList.add('visible');
+  }, 5200);
+
   try { initAudio(); } catch(e) { /* audio unavailable */ }
   try { if (audioCtx && audioCtx.state === 'suspended') await audioCtx.resume(); } catch(e) {}
 
-  // Load all audio (non-blocking — gracefully skips missing files)
+  // Load all audio with per-file timeout so a stalled fetch never blocks playback
+  const withTimeout = (p, ms) => Promise.race([p, new Promise(r => setTimeout(r, ms, null))]);
   const [conchBuf, crackBuf, bellsBuf, bg1Buf, bg2Buf] = await Promise.all([
-    loadBuffer('conch'),
-    loadBuffer('firecrackers'),
-    loadBuffer('bells'),
-    loadBuffer('bgMusic1'),
-    loadBuffer('bgMusic2')
+    withTimeout(loadBuffer('conch'),        9000),
+    withTimeout(loadBuffer('firecrackers'), 9000),
+    withTimeout(loadBuffer('bells'),        9000),
+    withTimeout(loadBuffer('bgMusic1'),     9000),
+    withTimeout(loadBuffer('bgMusic2'),     9000)
   ]);
 
   // 1. Conch — plays immediately with fade in/out (hardcoded to 5s)
@@ -670,19 +701,13 @@ async function openDoor() {
   playBuffer(crackBuf, { startDelay: overlapAt, fadeIn: 0.5, fadeOut: 0.6 });
   playBuffer(bellsBuf, { startDelay: overlapAt, fadeIn: 0.4, fadeOut: 0.8 });
 
-  // 3. Reveal inner sanctum after door fully opens (~5s)
-  setTimeout(() => {
-    frame.classList.add('revealed');
-    document.getElementById('mute-btn').classList.add('visible');
-  }, 5200);
-
   // 4. Background music — starts after bells finish, bg_2 loops after bg_1 ends
   const bgDelay = overlapAt + bellsDur;
   if (bg1Buf) {
     const bgResult = playBuffer(bg1Buf, {
       loop: false,
       fadeIn: 0,
-      fadeOut: 0,
+      fadeOut: 0.1,
       startDelay: bgDelay
     });
     if (bgResult) {
@@ -710,10 +735,10 @@ async function openDoor() {
 document.getElementById('mute-btn').addEventListener('click', () => {
   isMuted = !isMuted;
   document.getElementById('mute-btn').textContent = isMuted ? '🔇' : '🔊';
-  if (bgGainNode && audioCtx) {
-    bgGainNode.gain.linearRampToValueAtTime(
+  if (masterGainNode && audioCtx) {
+    masterGainNode.gain.linearRampToValueAtTime(
       isMuted ? 0 : 1,
-      audioCtx.currentTime + 0.5
+      audioCtx.currentTime + 0.3
     );
   }
 });
@@ -755,7 +780,10 @@ async function preloadAll() {
 
   const audioFetches = audioKeys.map(async key => {
     try {
-      const res = await fetch(AUDIO_FILES[key]);
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(AUDIO_FILES[key], { signal: controller.signal });
+      clearTimeout(timer);
       if (res.ok) rawAudioData[key] = await res.arrayBuffer();
     } catch(e) { /* will retry on tap if needed */ }
     tick();
@@ -770,7 +798,13 @@ createSparkles();
 
 // Preload all assets, then reveal the page
 window.addEventListener('load', () => {
+  // Safety fallback: always dismiss loading screen after 12s in case fetch stalls
+  const safetyTimer = setTimeout(() => {
+    document.getElementById('loading').classList.add('hidden');
+  }, 12000);
+
   preloadAll().then(() => {
+    clearTimeout(safetyTimer);
     setTimeout(() => {
       document.getElementById('loading').classList.add('hidden');
     }, 300);
