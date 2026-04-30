@@ -772,6 +772,7 @@ function launchPetalShower() {
 // ── Main door tap sequence ──
 function openDoor() {
   if (doorOpened) return;
+  if (navigator.vibrate) navigator.vibrate(60);
   doorOpened = true;
 
   // Open the door immediately
