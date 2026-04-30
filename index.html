@@ -463,23 +463,50 @@
   #loading {
     position: fixed; inset: 0;
     background: var(--dark-bg);
-    display: flex; align-items: center; justify-content: center;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 22px;
     z-index: 999;
     transition: opacity 0.8s ease;
   }
   #loading.hidden { opacity: 0; pointer-events: none; }
-  #loading-text {
+  #loading-om {
     color: var(--gold);
     font-family: 'Yatra One', cursive;
-    font-size: 1.2rem;
+    font-size: 3.5rem;
     animation: omPulse 1.5s ease-in-out infinite;
+  }
+  #loading-bar-wrap {
+    width: min(240px, 65vw);
+    height: 4px;
+    background: rgba(212,160,23,0.15);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  #loading-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--saffron), var(--gold-light));
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 8px rgba(255,215,0,0.55);
+  }
+  #loading-msg {
+    color: rgba(212,160,23,0.6);
+    font-family: 'Philosopher', serif;
+    font-style: italic;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
   }
 </style>
 </head>
 <body>
 
 <!-- Loading screen -->
-<div id="loading"><div id="loading-text">ॐ</div></div>
+<div id="loading">
+  <div id="loading-om">ॐ</div>
+  <div id="loading-bar-wrap"><div id="loading-bar"></div></div>
+  <div id="loading-msg">Preparing the surprise..</div>
+</div>
 
 <div id="scene">
   <div id="bg-glow"></div>
@@ -552,6 +579,7 @@ let bgMusicSource = null;
 let bgGainNode = null;
 let isMuted = false;
 let audioBuffers = {};
+let rawAudioData = {};
 let doorOpened = false;
 
 // ── Ambient particles ──
@@ -600,14 +628,14 @@ async function loadBuffer(key) {
   if (!AUDIO_FILES[key]) return null;
   if (audioBuffers[key]) return audioBuffers[key];
   try {
-    const res = await fetch(AUDIO_FILES[key]);
-    if (!res.ok) throw new Error('File not found');
-    const arr = await res.arrayBuffer();
+    // Use pre-fetched data if available (avoids re-download on mobile)
+    const raw = rawAudioData[key];
+    const arr = raw ? raw.slice(0) : await fetch(AUDIO_FILES[key]).then(r => r.arrayBuffer());
     const buf = await audioCtx.decodeAudioData(arr);
     audioBuffers[key] = buf;
     return buf;
   } catch(e) {
-    console.warn(`Audio file "${AUDIO_FILES[key]}" not found. Add the file to enable sound.`);
+    console.warn(`Audio file "${AUDIO_FILES[key]}" could not be loaded.`);
     return null;
   }
 }
@@ -734,15 +762,47 @@ window.addEventListener('beforeunload', () => {
   }
 });
 
+// ── Preload all assets and track progress ──
+async function preloadAll() {
+  const audioKeys = ['conch', 'firecrackers', 'bells', 'bgMusic1', 'bgMusic2'];
+  const imageUrls = ['assets/ganeshji.png', 'assets/door_left.svg', 'assets/door_right.svg'];
+  const total = audioKeys.length + imageUrls.length;
+  let loaded = 0;
+
+  function tick() {
+    loaded++;
+    document.getElementById('loading-bar').style.width =
+      Math.round((loaded / total) * 100) + '%';
+  }
+
+  const imageFetches = imageUrls.map(url => new Promise(resolve => {
+    const img = new Image();
+    img.onload = img.onerror = () => { tick(); resolve(); };
+    img.src = url;
+  }));
+
+  const audioFetches = audioKeys.map(async key => {
+    try {
+      const res = await fetch(AUDIO_FILES[key]);
+      if (res.ok) rawAudioData[key] = await res.arrayBuffer();
+    } catch(e) { /* will retry on tap if needed */ }
+    tick();
+  });
+
+  await Promise.all([...imageFetches, ...audioFetches]);
+}
+
 // ── Init ──
 createAmbientParticles();
 createSparkles();
 
-// Hide loading screen after fonts settle
+// Preload all assets, then reveal the page
 window.addEventListener('load', () => {
-  setTimeout(() => {
-    document.getElementById('loading').classList.add('hidden');
-  }, 600);
+  preloadAll().then(() => {
+    setTimeout(() => {
+      document.getElementById('loading').classList.add('hidden');
+    }, 300);
+  });
 });
 </script>
 </body>
