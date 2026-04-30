@@ -693,7 +693,7 @@ async function openDoor() {
     const bg2StartDelay = bgDelay + bg1Buf.duration;
     if (bg2Buf) {
       const bg2Result = playBuffer(bg2Buf, {
-        loop: true,
+        loop: false,
         fadeIn: 0.5,
         fadeOut: 0,
         startDelay: bg2StartDelay
