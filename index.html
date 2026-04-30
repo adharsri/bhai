@@ -714,7 +714,7 @@ async function openDoor() {
       bgGainNode = bgResult.gainNode;
       bgMusicSource = bgResult.source;
     }
-    // bg_2 starts immediately after bg_1 ends, then loops
+    // bg_2 starts immediately after bg_1 ends
     const bg2StartDelay = bgDelay + bg1Buf.duration;
     if (bg2Buf) {
       const bg2Result = playBuffer(bg2Buf, {
