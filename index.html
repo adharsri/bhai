@@ -100,27 +100,6 @@
     z-index: 1;
   }
 
-  /* OM symbol on top arch — circular medallion */
-  #om-symbol {
-    position: absolute;
-    top: 7px; left: 50%; transform: translateX(-50%);
-    font-size: 2.1rem;
-    color: var(--gold-light);
-    text-shadow: 0 0 14px rgba(255,215,0,0.9), 0 0 30px rgba(255,165,0,0.4);
-    z-index: 20;
-    animation: omPulse 3s ease-in-out infinite;
-    pointer-events: none;
-    width: 48px; height: 48px;
-    display: flex; align-items: center; justify-content: center;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(60,10,0,0.85) 45%, transparent 100%);
-    border: 1px solid rgba(212,160,23,0.55);
-  }
-  @keyframes omPulse {
-    0%, 100% { text-shadow: 0 0 12px rgba(255,215,0,0.8); opacity: 1; }
-    50%       { text-shadow: 0 0 25px rgba(255,215,0,1), 0 0 50px rgba(255,165,0,0.5); opacity: 0.85; }
-  }
-
   /* ─── THE TWO DOOR PANELS ─── */
   #doors-container {
     position: absolute; inset: 0;
@@ -469,12 +448,7 @@
     transition: opacity 0.8s ease;
   }
   #loading.hidden { opacity: 0; pointer-events: none; }
-  #loading-om {
-    color: var(--gold);
-    font-family: 'Yatra One', cursive;
-    font-size: 3.5rem;
-    animation: omPulse 1.5s ease-in-out infinite;
-  }
+
   #loading-bar-wrap {
     width: min(240px, 65vw);
     height: 4px;
@@ -503,7 +477,6 @@
 
 <!-- Loading screen -->
 <div id="loading">
-  <div id="loading-om">ॐ</div>
   <div id="loading-bar-wrap"><div id="loading-bar"></div></div>
   <div id="loading-msg">Preparing the surprise..</div>
 </div>
@@ -515,7 +488,6 @@
   <div id="door-frame">
     <!-- Door arch -->
     <div id="door-arch">
-      <div id="om-symbol">ॐ</div>
 
       <!-- Inner sanctum (revealed behind doors) -->
       <div id="inner-sanctum">
