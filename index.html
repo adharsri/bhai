@@ -598,6 +598,16 @@ function initAudio() {
   masterGainNode = audioCtx.createGain();
   masterGainNode.gain.value = 1;
   masterGainNode.connect(audioCtx.destination);
+  // Play a 1-sample silent buffer synchronously inside the user gesture.
+  // This is the reliable way to unlock AudioContext on Chrome mobile —
+  // resume() alone is not always sufficient.
+  try {
+    const silenceBuf = audioCtx.createBuffer(1, 1, 22050);
+    const src = audioCtx.createBufferSource();
+    src.buffer = silenceBuf;
+    src.connect(audioCtx.destination);
+    src.start(0);
+  } catch(e) {}
 }
 
 // Callback-based wrapper for Safari compatibility (older iOS ignores the Promise return)
@@ -662,35 +672,36 @@ function playBuffer(buffer, {loop=false, fadeIn=0.5, fadeOut=0.5, duration=null,
 }
 
 // ── Main door tap sequence ──
-async function openDoor() {
+function openDoor() {
   if (doorOpened) return;
   doorOpened = true;
 
-  // Open the door immediately — never block the visual on audio state
+  // Open the door immediately
   const frame = document.getElementById('door-frame');
   frame.classList.add('open');
 
-  // Schedule reveal NOW — before any async audio work — so the image always
-  // appears on mobile even if audio fetch stalls or is blocked by the browser
+  // Schedule reveal — image always appears regardless of audio state
   setTimeout(() => {
     frame.classList.add('revealed');
     document.getElementById('mute-btn').classList.add('visible');
   }, 5200);
 
-  // Ensure context exists (preloadAll creates it, this is a fallback)
-  if (!audioCtx) initAudio();
+  // Create + unlock AudioContext synchronously inside this user gesture.
+  // The silent-buffer trick is required for Chrome mobile — calling resume()
+  // alone doesn't satisfy the autoplay policy in all Chrome versions.
+  try { initAudio(); } catch(e) { return; }
   if (!audioCtx) return;
 
-  // Call resume() with NO prior await — Chrome mobile requires this to be a
-  // synchronous call within the user gesture handler. All playback happens
-  // inside .then() so there is zero async gap between the gesture and source.start().
-  audioCtx.resume().then(() => {
-    const conchBuf = audioBuffers['conch'];
-    const crackBuf = audioBuffers['firecrackers'];
-    const bellsBuf = audioBuffers['bells'];
-    const bg1Buf   = audioBuffers['bgMusic1'];
-    const bg2Buf   = audioBuffers['bgMusic2'];
-
+  // rawAudioData is already fetched during preload, so loadBuffer() only needs
+  // to decode (CPU only, no network). Chrome allows async work after the context
+  // is unlocked by the synchronous initAudio() call above.
+  Promise.all([
+    loadBuffer('conch'),
+    loadBuffer('firecrackers'),
+    loadBuffer('bells'),
+    loadBuffer('bgMusic1'),
+    loadBuffer('bgMusic2')
+  ]).then(([conchBuf, crackBuf, bellsBuf, bg1Buf, bg2Buf]) => {
     // 1. Conch
     const conchDur = 5.5;
     playBuffer(conchBuf, { fadeIn: 0.6, fadeOut: 0.8, duration: conchDur });
@@ -708,7 +719,7 @@ async function openDoor() {
       if (bgResult) { bgGainNode = bgResult.gainNode; bgMusicSource = bgResult.source; }
       const bg2StartDelay = bgDelay + bg1Buf.duration;
       if (bg2Buf) {
-        const bg2Result = playBuffer(bg2Buf, { loop: false, fadeIn: 0.5, fadeOut: 1.0, startDelay: bg2StartDelay-0.2 });
+        const bg2Result = playBuffer(bg2Buf, { loop: false, fadeIn: 0.5, fadeOut: 1.0, startDelay: bg2StartDelay - 0.2 });
         if (bg2Result) { bgMusicSource = bg2Result.source; bgGainNode = bg2Result.gainNode; }
       }
     }
@@ -732,8 +743,8 @@ const doorPanelLeft  = document.getElementById('panel-left');
 const doorPanelRight = document.getElementById('panel-right');
 const doorArch       = document.getElementById('door-arch');
 [doorPanelLeft, doorPanelRight, doorArch].forEach(el => {
-  el.addEventListener('click',      openDoor);
-  el.addEventListener('touchstart', openDoor, { passive: true });
+  el.addEventListener('click',    openDoor);
+  el.addEventListener('touchend', openDoor, { passive: true });
 });
 
 // ── Fade out bg music on page leave ──
@@ -745,10 +756,9 @@ window.addEventListener('beforeunload', () => {
 
 // ── Preload all assets and track progress ──
 async function preloadAll() {
-  // Create AudioContext now so we can pre-decode buffers before the user taps.
-  // Chrome mobile allows decodeAudioData on a suspended context — this is key
-  // to avoiding any async gap at playback time (which breaks the gesture chain).
-  initAudio();
+  // Do NOT create AudioContext here — it must be created inside a user gesture
+  // on Chrome mobile to be properly unlocked for audio playback.
+  // We only pre-fetch raw audio data; decoding happens in openDoor() after unlock.
 
   const audioKeys = ['conch', 'firecrackers', 'bells', 'bgMusic1', 'bgMusic2'];
   const imageUrls = ['assets/ganeshji.png', 'assets/door_left.svg', 'assets/door_right.svg'];
@@ -773,15 +783,7 @@ async function preloadAll() {
       const timer = setTimeout(() => controller.abort(), 8000);
       const res = await fetch(AUDIO_FILES[key], { signal: controller.signal });
       clearTimeout(timer);
-      if (res.ok) {
-        const arr = await res.arrayBuffer();
-        rawAudioData[key] = arr;
-        // Pre-decode so openDoor() can play with zero async delay on tap
-        if (audioCtx) {
-          try { audioBuffers[key] = await decodeAudio(audioCtx, arr.slice(0)); }
-          catch(e) { /* will decode on tap if needed */ }
-        }
-      }
+      if (res.ok) rawAudioData[key] = await res.arrayBuffer();
     } catch(e) { /* will retry on tap if needed */ }
     tick();
   });
